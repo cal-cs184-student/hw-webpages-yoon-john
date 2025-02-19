@@ -1,112 +1,333 @@
 <html>
-	<head>
-		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=default'></script>
-		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-		<style>
-			h1 {
-				text-align: center;
-			}
+  <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=default"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      h1 {
+        text-align: center;
+      }
 
-			.container {
-				margin: 0 auto;
-				padding: 60px 20%;
-			}
+      .container {
+        margin: 0 auto;
+        padding: 60px 20%;
+      }
 
-			figure {
-				text-align: center;
-			}
+      figure {
+        text-align: center;
+      }
 
-			img {
-				display: inline-block;
-			}
+      img {
+        display: inline-block;
+      }
 
-			body {
-				font-family: 'Inter', sans-serif;
-			}
-		</style>
-	</head>
-	<body>
-		<div class="container">
-		<h1>CS184/284A Spring 2025 Homework 1 Write-Up</h1>
-		<div style="text-align: center;">Names: </div>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>CS184/284A Spring 2025 Homework 1 Write-Up</h1>
+      <div style="text-align: center">Names:</div>
 
-		<br>
+      <br />
 
-		Link to webpage: (TODO) <a href="https://cs184.eecs.berkeley.edu/sp25">cs184.eecs.berkeley.edu/sp25</a>
-		
-		<br>
+      Link to webpage: (TODO)
+      <a
+        href="https://cal-cs184-student.github.io/hw-webpages-yoon-john/hw1/index.html"
+        >https://cal-cs184-student.github.io/hw-webpages-yoon-john/hw1/index.html</a
+      >
 
-		Link to GitHub repository: (TODO) <a href="https://cs184.eecs.berkeley.edu/sp25">cs184.eecs.berkeley.edu/sp25</a>
+      <br />
 
-		<figure>
-			<img src="lion.jpg" alt="Lion" style="width:50%"/>
-			<figcaption>You can add images with captions!</figcaption>
-		</figure>
+      Link to GitHub repository: (TODO)
+      <a href="https://github.com/cal-cs184-student/sp25-hw1-yoon"
+        >https://github.com/cal-cs184-student/sp25-hw1-yoon</a
+      >
 
-		<!--
+      <figure>
+        <img src="images/image1.png" alt="Lion" style="width: 50%" />
+        <figcaption>You can add images with captions!</figcaption>
+      </figure>
+
+      <!--
 		We've already added one heading per task, to make your write-up as navigable when grading. Please fit your write-up within these sections!
 		-->
 
-		<h2>Overview</h2>
-		Give a high-level overview of what you implemented in this homework. Think about what you've built as a whole. Share your thoughts on what interesting things you've learned from completing the homework.
+      <h2>Overview</h2>
+      Give a high-level overview of what you implemented in this homework. Think
+      about what you've built as a whole. Share your thoughts on what
+      interesting things you've learned from completing the homework.
 
-		<h2>Task 1: Drawing Single-Color Triangles</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+      <h2>Task 1: Drawing Single-Color Triangles</h2>
+      <p>
+        I rasterize the triangle in 3 steps: finding the bounding box, checking
+        the winding order of the vertices, and then sampling within the bounding
+        box.
+      </p>
+      <p>
+        For the bounding box, I simply compute the min and max of all the x and
+        y coordinates of the given vertices, and this becomes the coordinate for
+        my bounding box for the triangle.
+      </p>
+      <p>
+        To check the winding order of the vertices, I compute the cross product
+        of two consecutive edges, as we do in discussion 2, question 2. If the
+        value is positive or zero, we do nothing, as the winding order is
+        counterclockwise. If the value is negative, we swap the first two
+        points, as the winding order is clockwise, and we want counterclockwise.
+      </p>
+      <p>
+        To sample the triangle, we sample all the points + 0.5 in the previously
+        found bounding box, and apply the Three Line Test. We compute the line
+        equation for each point for all consecutive edges, and if the values of
+        all three line equations are positive, we fill said pixel.
+      </p>
+      <p>
+        We know that the algorithm is no worse than one that checks each sample
+        within the bounding box of the triangle, as the algorithm specifically
+        checks each sample within the bounding box of the triangle, and thus is
+        the exact same.
+      </p>
 
-		<p>Here is an example 2x2 gridlike structure using an HTML table. Each <b>tr</b> is a row and each <b>td</b> is a column in that row. You might find this useful for framing and showing your result images in an organized fashion.</p>
-		<div style="display: flex; flex-direction: column; align-items: center;">
-			<table style="width: 100%; text-align: center; border-collapse: collapse;">
-			  <tr>
-				<td style="text-align: center;">
-				  <img src="lion.jpg" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
-				</td>
-				<td style="text-align: center;">
-				  <img src="lion.jpg" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
-				</td>
-			  </tr>
-			  <tr>
-				<td style="text-align: center;">
-				  <img src="lion.jpg" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
-				</td>
-				<td style="text-align: center;">
-				  <img src="lion.jpg" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
-				</td>
-			  </tr>
-			</table>
-		</div>
-		
-		<h2>Task 2: Antialiasing by Supersampling</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+      <img src="images/Task 1.png" width="600px" style="align-self: center" />
 
-		<h2>Task 3: Transforms</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+      <h2>Task 2: Antialiasing by Supersampling</h2>
+      <p>
+        I supersample the triangle in 3 steps: recreate the sample buffer, a
+        vector of size (width x height x sample rate) to match the sample rate,
+        sample the triangle within the larger sample buffer, and then down
+        sample to match original frame buffer, by taking the average color of
+        all the pixels for a certain pixel and inserting into rgb framebuffer.
+      </p>
+      <p>
+        Supersampling is useful, as it drastically reduces the aliasing, or the
+        jaggies that appear on the edges of the triangles, as it takes an
+        average of the colors in a pixel, and some pixels have intermediate
+        colors, making lines smoother.
+      </p>
+      <p>
+        From the initial rasterization pipeline, some modifications were made.
+        The previous pipeline is still used, but for a larger sample buffer,
+        with coordinate values modified prior to the rasterization to fit the
+        larger sample buffer. After the values are added to the sample buffer,
+        it is downsampled, to match the frame buffer size, by taking an average
+        of corresponding pixel colors in the sample buffer.
+      </p>
+      <p>
+        This process antialiases the triangles, as taking averages for the color
+        make the edges of the triangles appear smoother, especially when zoomed
+        out.
+      </p>
 
-		<h2>Task 4: Barycentric coordinates</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+      <div style="display: flex; flex-direction: column; align-items: center">
+        <table
+          style="width: 100%; text-align: center; border-collapse: collapse"
+        >
+          <tr>
+            <td style="text-align: center">
+              <img src="images/Task 2 - 1.png" width="400px" />
+              <figcaption>Supersample Rate: 1/pixel</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img src="images/Task 2 - 4.png" width="400px" />
+              <figcaption>Supersample Rate: 4/pixel</figcaption>
+            </td>
+          </tr>
+          <tr style="text-align: center">
+            <td style="text-align: center">
+              <img src="images/Task 2 - 16.png" width="400px" />
+              <figcaption>Supersample Rate: 16/pixel</figcaption>
+            </td>
+          </tr>
+        </table>
+      </div>
 
-		<h2>Task 5: "Pixel sampling" for texture mapping</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+      <h2>Task 3: Transforms</h2>
+      <img src="images/Task 3.png" width="600px" />
+      <p>
+        I try to make a swimming (now that I look at it, it looks more like
+        flying) robot by first rotating the forearms, then adjusting the
+        translation of the forearm to make it more natural, and then rotating
+        the full robot.
+      </p>
 
-		<h2>Task 6: "Level Sampling" with mipmaps for texture mapping</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+      <h2>Task 4: Barycentric coordinates</h2>
+      <p>
+        Barycentric coordinates is a method of linearly interpolating inside a
+        triangle, so that given color values attached to vertices, each point
+        inside the triangle take on different values with different weight for
+        different vertex values. For example, in Figure 1 below, we utilize
+        Barycentric coordinates to interpolate colors for each pixel inside the
+        triangle. The leftmost vertex has color value corresponding to red,
+        topmost vertex to blue, and the rightmost vertex to green. By
+        calculating the proportion of the distances through the line equation of
+        the opposite edge, we can calculate the weights for each of the vertex
+        color values at each point, which is then combined to create a color
+        value for each point inside the triangle. This creates a smoothly
+        blended color triangle. This idea of Barycentric coordinate for
+        triangular linear interpolation can be used not only for colors, but
+        also for position, texture, and other attributes to make a smooth
+        blended triangle.
+      </p>
 
-		<h2>(Optional) Task 7: Extra Credit - Draw Something Creative!</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+      <div style="display: flex; flex-direction: column; align-items: center">
+        <table
+          style="width: 100%; text-align: center; border-collapse: collapse"
+        >
+          <tr>
+            <td style="text-align: center">
+              <img src="images/Task 4 - 1.png" width="400px" />
+              <figcaption>Figure 1</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img src="images/Task 4 - 2.png" width="400px" />
+              <figcaption>Figure 2</figcaption>
+            </td>
+          </tr>
+        </table>
+      </div>
 
-		<h2>Additional Notes (please remove)</h2>
-		<ul>
-			<li>You can also add code if you'd like as so: <code>code code code</code></li>
-			<li>If you'd like to add math equations, 
-				<ul>
-					<li>You can write inline equations like so: \( a^2 + b^2 = c^2 \)</li>
-					<li>You can write display equations like so: \[ a^2 + b^2 = c^2 \]</li>
-				</ul>
-			</li>
-		</ul>
-		</div>
-	</body>
+      <h2>Task 5: "Pixel sampling" for texture mapping</h2>
+      <p>
+        Pixel sampling is a technique used, where we map a certain pixel from a
+        texture space (or texel) to our frame’s pixels. To do this on a
+        triangle, we first use similar technique as we did for previous
+        iterations of rasterization using barycentric coordinates — using
+        barycentric coordinates to find out the alpha beta gamma weights of each
+        coordinates of the triangle. Now, instead of applying the weights on
+        different colors, we apply them to each point of the texture
+        coordinates. After getting the weighted texture coordinates, we pass
+        them to either the sample nearest function, or the sample bilinear
+        function.
+      </p>
+      <p>
+        Both sampling function initially retrieves the mipmap given a level.
+      </p>
+      <p>
+        The nearest sampling function scales the uv coordinate with the width
+        and height of the mipmap, and then rounds the texture coordinates to the
+        nearest integer value, and take the color at said texel.
+      </p>
+      <p>
+        The bilinear sampling function also scales the uv coordinates withe the
+        width and height of the mipamp, and finds the floor and ceiling of both
+        the u and v coordinate, then find the 4 nearest sample texel colors.
+        From here, we compute the vertical and horizontal fractional offset of s
+        and t, then linearly interpolating horizontally twice using horizontal
+        offest of s, and then vertically interpolating the two points to find
+        our final color for our point, which we return.
+      </p>
+      <div style="display: flex; flex-direction: column; align-items: center">
+        <table
+          style="width: 100%; text-align: center; border-collapse: collapse"
+        >
+          <tr>
+            <td style="text-align: center">
+              <img src="images/Task 5 - 1.png" width="400px" />
+              <figcaption>Nearest - 1x</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img src="images/Task 5 - 2.png" width="400px" />
+              <figcaption>Bilinear - 1x</figcaption>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align: center">
+              <img src="images/Task 5 - 3.png" width="400px" />
+              <figcaption>Nearest - 16x</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img src="images/Task 5 - 4.png" width="400px" />
+              <figcaption>Bilinear - 16x</figcaption>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <p>
+        If we compare the output for nearest sampling and bilinear sampling, the
+        differences become clearer. The differences between pixel colors are
+        more stark when using nearest sampling, and more smooth when using
+        bilinear sampling. This is more visible in the 1x sampling per pixel, as
+        the 16x supersampling is able to smoothen the colors even when using
+        nearest sampling.
+      </p>
+      <p>
+        This is because the bilinear sampling takes a weighted sum of the 4
+        nearest texel around our desired point. The difference between the two
+        sampling methods are larger when there are high frequency details, such
+        as sharp edges, fine textures, or drastic color changes, without using
+        super sampling methods. This is because the nearest sampling will simple
+        grab the nearest texel color, but the bilinear sampling will take into
+        account all 4 colors around the point, allowing for a smoother texture
+        when all colors are displayed.
+      </p>
+
+      <h2>Task 6: "Level Sampling" with mipmaps for texture mapping</h2>
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+      tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
+      veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+      commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
+      velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+      cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+      est laborum.
+
+      <div style="display: flex; flex-direction: column; align-items: center">
+        <table
+          style="width: 100%; text-align: center; border-collapse: collapse"
+        >
+          <tr>
+            <td style="text-align: center">
+              <img src="images/Task 6 - 1.png" width="400px" />
+              <figcaption>L_ZERO, P_NEAREST</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img src="images/Task 6 - 2.png" width="400px" />
+              <figcaption>L_ZERO, P_LINEAR</figcaption>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align: center">
+              <img src="images/Task 6 - 3.png" width="400px" />
+              <figcaption>L_NEAREST, P_NEAREST</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img src="images/Task 6 - 4.png" width="400px" />
+              <figcaption>L_NEAREST, P_LINEAR</figcaption>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <h2>(Optional) Task 7: Extra Credit - Draw Something Creative!</h2>
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+      tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
+      veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+      commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
+      velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+      cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+      est laborum.
+
+      <h2>Additional Notes (please remove)</h2>
+      <ul>
+        <li>
+          You can also add code if you'd like as so: <code>code code code</code>
+        </li>
+        <li>
+          If you'd like to add math equations,
+          <ul>
+            <li>
+              You can write inline equations like so: \( a^2 + b^2 = c^2 \)
+            </li>
+            <li>
+              You can write display equations like so: \[ a^2 + b^2 = c^2 \]
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </body>
 </html>
