@@ -1,106 +1,632 @@
 <html>
-	<head>
-		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=default'></script>
-		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-		<style>
-			h1 {
-				text-align: center;
-			}
+  <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=default"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      h1 {
+        text-align: center;
+      }
 
-			.container {
-				margin: 0 auto;
-				padding: 60px 20%;
-			}
+      .container {
+        margin: 0 auto;
+        padding: 60px 20%;
+      }
 
-			figure {
-				text-align: center;
-			}
+      figure {
+        text-align: center;
+      }
 
-			img {
-				display: inline-block;
-			}
+      img {
+        display: inline-block;
+      }
 
-			body {
-				font-family: 'Inter', sans-serif;
-			}
-		</style>
-	</head>
-	<body>
-		<div class="container">
-		<h1>CS184/284A Spring 2025 Homework 3 Write-Up</h1>
-		<div style="text-align: center;">Names: </div>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>CS184/284A Spring 2025 Homework 3 Write-Up</h1>
+      <div style="text-align: center">Names:</div>
 
-		<br>
+      <br />
 
-		Link to webpage: (TODO) <a href="https://cs184.eecs.berkeley.edu/sp25">cs184.eecs.berkeley.edu/sp25</a>
-		Link to GitHub repository: (TODO) <a href="https://cs184.eecs.berkeley.edu/sp25">cs184.eecs.berkeley.edu/sp25</a>
-		
-		<figure>
-			<img src="cornell.png" alt="Cornell Boxes with Bunnies" style="width:70%"/>
-			<figcaption>You can add images with captions!</figcaption>
-		</figure>
+      Link to webpage: (TODO)
+      <a
+        href="https://cal-cs184-student.github.io/hw-webpages-yoon-john/hw3/index.html"
+        >https://cal-cs184-student.github.io/hw-webpages-yoon-john/hw3/index.html</a
+      >
+      Link to GitHub repository:
+      <a href="https://github.com/cal-cs184-student/sp25-hw3-jy"
+        >https://github.com/cal-cs184-student/sp25-hw3-jy</a
+      >
 
-		<!--
+      <!--
 		We've already added one heading per part, to make your write-up as navigable when grading. Please fit your write-up within these sections!
 		-->
 
-		<h2>Overview</h2>
-		Give a high-level overview of what you implemented in this homework. Think about what you've built as a whole. Share your thoughts on what interesting things you've learned from completing the homework.
+      <h2>Overview</h2>
+      In this homework, we implement a ray tracer, with the several different
+      components. First, we will implement ray generation and intersection
+      algorithm to handle ray casting and scene intersections. Then, we will
+      implement Bounding Volume Hierarchy (BVH) to accelerate ray tracing. Then,
+      we will implement illumination functions, by first implementing direct
+      illumination with no bounce and one bounce illumination using both uniform
+      hemisphere sampling and importance light sampling. We then implement
+      global illumination with indirect lighting of bounces larger than one.
+      Finally, we implement adaptive sampling, allowing us to adapatively scale
+      the number of samples at different pixels based on a tolerance.
 
-		<h2>Part 1: Ray Generation and Scene Intersection</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+      <h2>Part 1: Ray Generation and Scene Intersection</h2>
+      <p>
+        In this part of the homework, we implement ray generation and a few
+        intersection algorithms.
+      </p>
 
-		<p>Here is an example 2x2 gridlike structure using an HTML table. Each <b>tr</b> is a row and each <b>td</b> is a column in that row. You might find this useful for framing and showing your result images in an organized fashion.</p>
-		<div style="display: flex; flex-direction: column; align-items: center;">
-			<table style="width: 100%; text-align: center; border-collapse: collapse;">
-			  <tr>
-				<td style="text-align: center;">
-				  <img src="cornell.png" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
-				</td>
-				<td style="text-align: center;">
-				  <img src="cornell.png" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
-				</td>
-			  </tr>
-			  <tr>
-				<td style="text-align: center;">
-				  <img src="cornell.png" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
-				</td>
-				<td style="text-align: center;">
-				  <img src="cornell.png" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
-				</td>
-			  </tr>
-			</table>
-		</div>
-		
-		<h2>Part 2: Bounding Volume Hierarchy</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+      <p>
+        We first implement camera ray generation, which takes in normalized
+        image coordinates and outputs a ray element in world space. The ray
+        element is a ray in world space, with an origin and a normalized
+        direction vector. We first need to transform the image coordinates into
+        camera space, then generate the ray from the origin (camera point) to
+        the point in camera space, and then transform this ray into a ray in
+        world space coordinates.
+      </p>
 
-		<h2>Part 3: Direct Illumination</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+      <p>
+        To convert the coordinates (x, y) from image space to camera space, we
+        first move and scale it from image space to a point (cx, cy, -1) on the
+        plane in the camera space, as shown below:
+      </p>
+      <figure>
+        <img src="images/Task 1 - image2camera.png" width="400px" />
+      </figure>
+      <p>
+        Now, given the camera origin of (0, 0, 0) and camera ray direction
+        vector of (cx, cy, -1) (note, this vector needs to be normalized), we
+        can transform by the camera to world (c2w) matrix, to get camera
+        position pos and direction vector wd, using which we generate a ray.
+      </p>
 
-		<h2>Part 4: Global Illumination</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+      <p>
+        We also implement generating pixel samples from pixel coordinates that
+        lie on the unnormalized image space. Here, we incorporate the Monte
+        Carlo estimate of the pixel value using a uniform distribution over
+        ns_aa samples. Over ns_aa iterations, we generate a random point between
+        x and x + 1, y and y + 1, normalize it by the width and height of the
+        sample buffer, and generate a ray using the functions we created
+        previously, and find the estimated radiance of the ray. We sum all these
+        radiance, and divide by ns_aa for a Monte Carlo estimate, after which we
+        use it to update the pixel at (x, y).
+      </p>
 
-		<h2>Part 5: Adaptive Sampling</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+      <p>
+        We also implement two different intersection algorithms, one for
+        triangles and one for spheres.
+      </p>
 
-		<h2>(Optional) Part 6: Extra Credit Opportunities</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-		
-		<h2>Additional Notes (please remove)</h2>
-		<ul>
-			<li>You can also add code if you'd like as so: <code>code code code</code></li>
-			<li>If you'd like to add math equations, 
-				<ul>
-					<li>You can write inline equations like so: \( a^2 + b^2 = c^2 \)</li>
-					<li>You can write display equations like so: \[ a^2 + b^2 = c^2 \]</li>
-				</ul>
-			</li>
-		</ul>
-		</div>
-	</body>
+      <p>
+        For the ray-triangle intersection, we implement this by setting the ray
+        equation and the plane equation equal to each other, first finding the t
+        (time) at which the ray intersects the plane, and make sure it is
+        between the min and max t. After this, we use the three line test to
+        check whether or not the point we derive from the t lies inside the
+        triangle. The point and the intersection information can then be
+        computed and assigned. This process can be optimized using the Möller
+        Trumbore Algorithm:
+      </p>
+      <figure>
+        <img
+          src="images/Task 1 - Möller Trumbore Algorithm.png"
+          width="400px"
+        />
+      </figure>
+      <p>
+        For the ray-sphere intersection, we implement this by setting the ray
+        equation and the sphere equation equal to each other, which yields a
+        quadratic equation for t. Using the quadratic formula, along with
+        properties of the determinant, we know that the ray intersects the
+        sphere at two points if the determinant is > 0, one intersection if the
+        determinant = 0, and zero intersection if the determinant < 0. We then
+        use these/this t and check if they are inside the min and max t, and use
+        it to find the intersection point, and the necessary information about
+        the intersection.
+      </p>
+      <p>
+        Here is an example 2x2 gridlike structure using an HTML table. Each
+        <b>tr</b> is a row and each <b>td</b> is a column in that row. You might
+        find this useful for framing and showing your result images in an
+        organized fashion.
+      </p>
+      <div style="display: flex; flex-direction: column; align-items: center">
+        <table
+          style="width: 100%; text-align: center; border-collapse: collapse"
+        >
+          <tr>
+            <td style="text-align: center">
+              <img src="images/Task 1 - CBempty.png" width="400px" />
+              <figcaption>CBempty</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img src="images/Task 1 - CBspheres.png" width="400px" />
+              <figcaption>CBspheres</figcaption>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align: center">
+              <img src="images/Task 1 - CBgems.png" width="400px" />
+              <figcaption>CBgems</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img src="images/Task 1 - bunny.png" width="400px" />
+              <figcaption>bunny</figcaption>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <h2>Part 2: Bounding Volume Hierarchy</h2>
+      <p>
+        In this part of the homework, we implement Bounding Volume Hierarchy to
+        accelerate ray tracing that we implemented in the previous part.
+      </p>
+
+      <p>
+        To construct the BVH, we are given the start and end primitives as
+        iterators, and the max_leaf_size. Each node in the BVH contains the
+        bounding box, so I start by creating an empty bounding box and expanding
+        it by the bounding box of every primitive that we are given. Then, we
+        create a new BVHNode with the created bounding box. If this node
+        contains less than max_leaf_size primitives, this is a leaf node and we
+        return it with null left and right children.
+      </p>
+
+      <p>
+        Otherwise, we compute the average centroid coordinates of the
+        primitives, and find the longest axis out of x, y, and z. We split the
+        longest axis along the average centroid coordinate for said axis, and
+        any primitive with centroid axis value smaller than the split value will
+        be added to the left vector, and any primitive with centroid axis value
+        larger than the split value will be added to the right vector.
+      </p>
+
+      <p>
+        Given these left and right primitive vectors, and recursively call the
+        construct function, whose return value we assign to the left and right
+        children value for the node that we created.
+      </p>
+
+      <p>
+        This allows ray tracing acceleration, allowing us to render the
+        following images:
+      </p>
+      <div style="display: flex; flex-direction: column; align-items: center">
+        <table
+          style="width: 100%; text-align: center; border-collapse: collapse"
+        >
+          <tr>
+            <td style="text-align: center">
+              <img src="images/Task 2 - cow.png" width="400px" />
+              <figcaption>cow</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img src="images/Task 2 - maxplanck.png" width="400px" />
+              <figcaption>maxplanck</figcaption>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align: center">
+              <img src="images/Task 2 - CBlucy.png" width="400px" />
+              <figcaption>CBlucy</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img src="images/Task 2 - CBDragon.png" width="400px" />
+              <figcaption>CBDragon</figcaption>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <p>
+        Rendering times were decreased by a large amount, and the change was
+        more visible for more complex geometries. The cow model prior to
+        implementing BVH rendered in 5.6899 seconds, compared to 0.0574 seconds
+        using BVH. The maxplanck model, which is more complex, rendered in
+        36.9544 seconds prior to BVH, compared to 0.0794 seconds using BVH.
+        Models like CBlucy, which would’ve taken a lot longer without BVH
+        rendered in only 0.0608 seconds using BVH.
+      </p>
+
+      <h2>Part 3: Direct Illumination</h2>
+      <p>
+        In this part of the homework, we implement different direct lighting
+        function.
+      </p>
+
+      <p>
+        In addition to the zero-illumination, which is simply the lighting from
+        the light source, we implement one-bounce illumination with uniform
+        hemisphere sampling, and with importance sampling lights, using the
+        following Monte Carlo estimator:
+      </p>
+      <figure>
+        <img src="images/Task 3 - Monte Carlo.png" width="400px" />
+      </figure>
+
+      <p>
+        For the uniform hemisphere sampling, we sample num_samples times,
+        running a sampling loop. In each iteration of the loop, we sample the
+        incoming angle uniformly along the hemisphere, with PDF of 1/2PI, and
+        cast a ray in the incoming direction. If this ray intersects, we receive
+        the bsdf emission of that point, which is the radiance. Now, we have all
+        the terms necessary to compute the Monte Carlo estimator, where the f
+        term is the bsdf→f, Li term is the radiance, cos term can be computed
+        using the sampled incoming angle, and p term is the pdf of 1/2PI. Then,
+        we sum it iteratively, and divide by num_samples at the end before
+        returning.
+      </p>
+
+      <p>
+        For the importance light sampling, we are given a vector of light
+        sources, and we iterate over each light source, and follow a similar
+        process of the computing the Monte Carlo estimator, but with different
+        terms. the f term, and the cos term is the same, but the L term is the
+        ouput of lights→sample_L, and so is the incoming angle and the pdf.
+        Also, if it is a point light source, we sample the light source only
+        once, while we sample it multiple times if it isn’t a point light
+        source, along with taking a running average for each light source
+        output. Like the uniform hemisphere sampling, we sum iteratively the
+        output for each light source, At the end, we return the sum divided by
+        the number of light sources.
+      </p>
+
+      <div style="display: flex; flex-direction: column; align-items: center">
+        <table
+          style="width: 100%; text-align: center; border-collapse: collapse"
+        >
+          <tr>
+            <td style="text-align: center">
+              <img src="images/Task 3 - CBbunny_H_64_32.png" width="400px" />
+              <figcaption>
+                CBbunny.dae with uniform hemisphere sampling
+              </figcaption>
+            </td>
+            <td style="text-align: center">
+              <img src="images/Task 3 - bunny_64_32.png" width="400px" />
+              <figcaption>CBbunny.dae with light sampling</figcaption>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align: center">
+              <img src="images/Task 3 - spheres_H.png" width="400px" />
+              <figcaption>
+                CBspheres_lambertian.dae with uniform hemisphere sampling
+              </figcaption>
+            </td>
+            <td style="text-align: center">
+              <img src="images/Task 3 - spheres.png" width="400px" />
+              <figcaption>
+                CBspheres_lambertian.dae with light sampling
+              </figcaption>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <p>
+        With importance light sampling, with increasing light rays per light
+        source, the noise level decreases. This is understandable, as with more
+        sampling, it will result in a smoother result and more realistic
+        shadows. This difference is most visible in the shadow under the bunny.
+      </p>
+      <div style="display: flex; flex-direction: column; align-items: center">
+        <table
+          style="width: 100%; text-align: center; border-collapse: collapse"
+        >
+          <tr>
+            <td style="text-align: center">
+              <img src="images/Task 3 - bunny_1_1.png" width="400px" />
+              <figcaption>1 light ray, 1 sample per pixel</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img src="images/Task 3 - bunny_1_4.png" width="400px" />
+              <figcaption>4 light ray, 1 sample per pixel</figcaption>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align: center">
+              <img src="images/Task 3 - bunny_1_16.png" width="400px" />
+              <figcaption>16 light ray, 1 sample per pixel</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img src="images/Task 3 - bunny_1_64.png" width="400px" />
+              <figcaption>64 light ray, 1 sample per pixel</figcaption>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <p>
+        There is a distinct difference between uniform hemisphere sampling and
+        lighting sampling. In general, light sampling provide a smoother result
+        with better shadow quality. Uniform sampling results in a more grainy
+        result, with a bit of noise. Also, because the light sampling directly
+        samples from the light source, it can render scenes with point light
+        sources, which is essentially impossible with uniform hemisphere
+        sampling.
+      </p>
+
+      <h2>Part 4: Global Illumination</h2>
+      <p class="editor-paragraph">
+        In this part, we implement global illumination using indiret lighting
+        function.
+      </p>
+      <p class="editor-paragraph">
+        Unlike the one bounce illumination we implement in the previous part, we
+        extend this further, form more bounces which allows for computation of
+        indirect illumination. This is done recursively, by casting a sampled
+        ray from the point, setting a depth attribute for the ray, and
+        recursively following the ray for bounces, until our desired number of
+        bounces.
+      </p>
+      <p class="editor-paragraph">
+        In the case of global illumination with Russian Roulette, we worry about
+        infinite loop recursion, and thus we have a continuation probability,
+        and based on a coin flip, with continue with said probability while
+        normalizing with the probability, or terminate the recursion.
+      </p>
+      <p style="text-align: center" class="editor-paragraph">
+        Example Renders:
+      </p>
+      <div style="display: flex; flex-direction: column; align-items: center">
+        <table
+          style="width: 100%; text-align: center; border-collapse: collapse"
+        >
+          <tr>
+            <td style="text-align: center">
+              <img src="images/spheres.png" width="400px" />
+              <figcaption>
+                CBspheres_lambertian with global illumination
+              </figcaption>
+            </td>
+            <td style="text-align: center">
+              <img src="images/bunny.png" width="400px" />
+              <figcaption>CBbunny with global illumination</figcaption>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <p style="text-align: center" class="editor-paragraph">
+        Only Direct vs Only Indirect illumination:
+      </p>
+      <div style="display: flex; flex-direction: column; align-items: center">
+        <table
+          style="width: 100%; text-align: center; border-collapse: collapse"
+        >
+          <tr>
+            <td style="text-align: center">
+              <img src="images/bunny_s1024l1m1.png" width="400px" />
+              <figcaption>CBbunny with only direct illumination</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img src="images/bunny_indirect.png" width="400px" />
+              <figcaption>CBbunny with only indirect illumination</figcaption>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <p style="text-align: center" class="editor-paragraph">
+        Accumulated vs Unaccumulated:
+      </p>
+      <div style="display: flex; flex-direction: column; align-items: center">
+        <table>
+          <thead>
+            <tr>
+              <th style="text-align: center">isAccumBounces</th>
+              <th style="text-align: center">m=0</th>
+              <th style="text-align: center">m=1</th>
+              <th style="text-align: center">m=2</th>
+              <th style="text-align: center">m=3</th>
+              <th style="text-align: center">m=4</th>
+              <th style="text-align: center">m=5</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="text-align: center">false</td>
+              <td style="text-align: center">
+                <img src="images/bunny_s1024l1m0o0.png" width="120px" />
+              </td>
+              <td style="text-align: center">
+                <img src="images/bunny_s1024l1m1o0.png" width="120px" />
+              </td>
+              <td style="text-align: center">
+                <img src="images/bunny_s1024l1m2o0.png" width="120px" />
+              </td>
+              <td style="text-align: center">
+                <img src="images/bunny_s1024l1m3o0.png" width="120px" />
+              </td>
+              <td style="text-align: center">
+                <img src="images/bunny_s1024l1m4o0.png" width="120px" />
+              </td>
+              <td style="text-align: center">
+                <img src="images/bunny_s1024l1m5o0.png" width="120px" />
+              </td>
+            </tr>
+            <tr>
+              <td style="text-align: center">true</td>
+              <td style="text-align: center">
+                <img src="images/bunny_s1024l1m0o0.png" width="120px" />
+              </td>
+              <td style="text-align: center">
+                <img src="images/bunny_s1024l1m1.png" width="120px" />
+              </td>
+              <td style="text-align: center">
+                <img src="images/bunny_s1024l1m2.png" width="120px" />
+              </td>
+              <td style="text-align: center">
+                <img src="images/bunny_s1024l1m3.png" width="120px" />
+              </td>
+              <td style="text-align: center">
+                <img src="images/bunny_s1024l1m4.png" width="120px" />
+              </td>
+              <td style="text-align: center">
+                <img src="images/bunny_s1024l1m5.png" width="120px" />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="editor-paragraph">
+        In the second and third bounce of light, we mainly see the wall
+        illumination from the indirect lighting, and the illumination onto the
+        bunny from the wall and the floor, thus casting a bit of pink and purple
+        on either side of the bunny, and light below the bunny. This contributes
+        to making a more natural image compared to only the direct illumination.
+      </p>
+      <p style="text-align: center" class="editor-paragraph">
+        Russian Roulette Rendering:
+      </p>
+      <div style="display: flex; flex-direction: column; align-items: center">
+        <table>
+          <thead>
+            <tr>
+              <th style="text-align: center">m=0</th>
+              <th style="text-align: center">m=1</th>
+              <th style="text-align: center">m=2</th>
+              <th style="text-align: center">m=3</th>
+              <th style="text-align: center">m=4</th>
+              <th style="text-align: center">m=100</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="text-align: center">
+                <img src="images/bunny_s1024l1m0o0.png" width="120px" />
+              </td>
+              <td style="text-align: center">
+                <img src="images/bunny_s1024l1m1.png" width="120px" />
+              </td>
+              <td style="text-align: center">
+                <img src="images/bunny_s1024l1m2.png" width="120px" />
+              </td>
+              <td style="text-align: center">
+                <img src="images/bunny_s1024l1m3.png" width="120px" />
+              </td>
+              <td style="text-align: center">
+                <img src="images/bunny_s1024l1m4.png" width="120px" />
+              </td>
+              <td style="text-align: center">
+                <img src="images/bunny_s1024l1m100.png" width="120px" />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="text-align: center" class="editor-paragraph">
+        Different sample-per-pixel rendering:
+      </p>
+      <div style="display: flex; flex-direction: column; align-items: center">
+        <table>
+          <thead>
+            <tr>
+              <th style="text-align: center">s=1</th>
+              <th style="text-align: center">s=2</th>
+              <th style="text-align: center">s=4</th>
+              <th style="text-align: center">s=8</th>
+              <th style="text-align: center">s=16</th>
+              <th style="text-align: center">s=64</th>
+              <th style="text-align: center">s=1024</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="text-align: center">
+                <img src="images/bunny_s1l1m5.png" width="120px" />
+              </td>
+              <td style="text-align: center">
+                <img src="images/bunny_s2l1m5.png" width="120px" />
+              </td>
+              <td style="text-align: center">
+                <img src="images/bunny_s4l1m5.png" width="120px" />
+              </td>
+              <td style="text-align: center">
+                <img src="images/bunny_s8l1m5.png" width="120px" />
+              </td>
+              <td style="text-align: center">
+                <img src="images/bunny_s16l1m5.png" width="120px" />
+              </td>
+              <td style="text-align: center">
+                <img src="images/bunny_s64l1m5.png" width="120px" />
+              </td>
+              <td style="text-align: center">
+                <img src="images/bunny_s1024l1m5.png" width="120px" />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Part 5: Adaptive Sampling</h2>
+      <p class="editor-paragraph">
+        In this part of the homework, we implement adaptive sampling.
+      </p>
+      <p class="editor-paragraph">
+        Utilizing the Monte Carlo parth tracing that we implement in previous
+        parts is very useful in generating realistic images, but they result in
+        alot of noise in the rendered images at low sampling rates per pixel.
+        This means it can be fixed using samples per pixels, but doing this
+        uniformly for all pixels take a long time, and isn’t necessary. Adaptive
+        sampling utilizes a tolerance, and when a new sample lands in the
+        tolerated range of variance inside the 95% confidence interval, we can
+        assume the pixel has converged, and we stop sampling that pixel, without
+        reaching the samples per pixel we set. Instead this samples per pixel
+        value becomes a upper bound for number of samples per pixel.
+      </p>
+      <p class="editor-paragraph">
+        We implement this by keeping track of s1 and s2 which are sums of the
+        illuminance and illuminance squared, which then allows us to the mean
+        and variance. For every num_adaptive_samples of sampling, we calculate
+        the mean and variance, which we then use to find I = 1.96 *
+        sqrt(variance / sample_num), and compare it to maxTolerance * mean. If I
+        is smaller or equal, we terminate the sampling, and write the number of
+        samples into the sampleCountBuffer.
+      </p>
+
+      <div style="display: flex; flex-direction: column; align-items: center">
+        <table
+          style="width: 100%; text-align: center; border-collapse: collapse"
+        >
+          <tr>
+            <td style="text-align: center">
+              <img src="images/Task 4 - bunny.png" width="400px" />
+              <figcaption>CBbunny.dae with adaptive sampling</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img src="images/bunny_rate.png" width="400px" />
+              <figcaption>CBbunny.dae sampling rate</figcaption>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align: center">
+              <img src="images/Task 4 - spheres.png" width="400px" />
+              <figcaption>
+                CBspheres_lambertian.dae with adaptive sampling
+              </figcaption>
+            </td>
+            <td style="text-align: center">
+              <img src="images/spheres_rate.png" width="400px" />
+              <figcaption>CBspheres_lambertian.dae sampling rate</figcaption>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </body>
 </html>
