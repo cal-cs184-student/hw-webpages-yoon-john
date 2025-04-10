@@ -1,109 +1,479 @@
 <html>
-	<head>
-		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=default'></script>
-		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-		<style>
-			h1 {
-				text-align: center;
-			}
+  <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=default"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      h1 {
+        text-align: center;
+      }
 
-			.container {
-				margin: 0 auto;
-				padding: 60px 20%;
-			}
+      .container {
+        margin: 0 auto;
+        padding: 60px 20%;
+      }
 
-			figure {
-				text-align: center;
-			}
+      figure {
+        text-align: center;
+      }
 
-			img {
-				display: inline-block;
-			}
+      img {
+        display: inline-block;
+      }
 
-			body {
-				font-family: 'Inter', sans-serif;
-			}
-		</style>
-	</head>
-	<body>
-		<div class="container">
-		<h1>CS184/284A Spring 2025 Homework 4 Write-Up</h1>
-		<div style="text-align: center;">Names: </div>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>CS184/284A Spring 2025 Homework 4 Write-Up</h1>
+      <div style="text-align: center">Name: John Yoon</div>
 
-		<br>
+      <br />
 
-		Link to webpage: (TODO) <a href="https://cs184.eecs.berkeley.edu/sp25">cs184.eecs.berkeley.edu/sp25</a>
+      Link to webpage:
+      <a
+        href="https://cal-cs184-student.github.io/hw-webpages-yoon-john/hw4/index.html"
+        >https://cal-cs184-student.github.io/hw-webpages-yoon-john/hw4/index.html</a
+      >
 
-		<br>
+      <br />
 
-		Link to GitHub repository: (TODO) <a href="https://cs184.eecs.berkeley.edu/sp25">cs184.eecs.berkeley.edu/sp25</a>
+      Link to GitHub repository:
+      <a href="https://github.com/cal-cs184-student/sp25-hw4-johny"
+        >https://github.com/cal-cs184-student/sp25-hw4-johny</a
+      >
 
-		<figure>
-			<img src="clothsim.png" alt="Cloth draped over sphere" style="width:70%"/>
-			<figcaption>You can add images with captions!</figcaption>
-		</figure>
+      <figure>
+        <img
+          src="clothsim.png"
+          alt="Cloth draped over sphere"
+          style="width: 70%"
+        />
+        <figcaption>You can add images with captions!</figcaption>
+      </figure>
 
-		<!--
+      <!--
 		We've already added one heading per part, to make your write-up as navigable when grading. Please fit your write-up within these sections!
 		-->
 
-		<h2>Overview</h2>
-		Give a high-level overview of what you implemented in this homework. Think about what you've built as a whole. Share your thoughts on what interesting things you've learned from completing the homework.
+      <h2>Overview</h2>
+      In this homework, we implement a cloth simulation using a mass and spring
+      based system. We first implement a cloth model with grid of masses, with
+      different springs (Structural, Shearing, Bending constraints) in between
+      them. We then implement the simulation by applying forces acting on each
+      point mass, with position updates using Verlet integration. We then
+      implement collision handling with spheres and planes, along with self
+      collisions using spatial hashing. Finally, we implement various
+      shading(Blinn-Phong, texture mapping, displacement, bump) using shaders
+      allowing for accelerated shading.
+      <h2>Part 1: Masses and springs</h2>
+      <div style="display: flex; flex-direction: column; align-items: center">
+        <table
+          style="width: 100%; text-align: center; border-collapse: collapse"
+        >
+          <tr>
+            <td style="text-align: center">
+              <img src="Part 1 - pinned2.png" width="400px" />
+              <figcaption>pinned2.json</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img src="Part 1 - wo shearing.png" width="400px" />
+              <figcaption>pinned2.json without shearing constraint</figcaption>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align: center">
+              <img src="Part 1 - only shearing.png" width="400px" />
+              <figcaption>
+                pinned2.json with only shearing constraint
+              </figcaption>
+            </td>
+            <td style="text-align: center">
+              <img src="Part 1 - all constraints.png" width="400px" />
+              <figcaption>pinned2.json with all constraints</figcaption>
+            </td>
+          </tr>
+        </table>
+      </div>
 
-		<h2>Part 1: Masses and springs</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+      <h2>Part 2: Simulation via numerical integration</h2>
+      <figure>
+        <img src="Part 2 - default.png" width="400px" />
+        <figcaption>pinned2.json with default paramters</figcaption>
+      </figure>
 
-		<p>Here is an example 2x2 gridlike structure using an HTML table. Each <b>tr</b> is a row and each <b>td</b> is a column in that row. You might find this useful for framing and showing your result images in an organized fashion.</p>
-		<div style="display: flex; flex-direction: column; align-items: center;">
-			<table style="width: 100%; text-align: center; border-collapse: collapse;">
-			  <tr>
-				<td style="text-align: center;">
-				  <img src="clothsim.png" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
-				</td>
-				<td style="text-align: center;">
-				  <img src="clothsim.png" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
-				</td>
-			  </tr>
-			  <tr>
-				<td style="text-align: center;">
-				  <img src="clothsim.png" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
-				</td>
-				<td style="text-align: center;">
-				  <img src="clothsim.png" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
-				</td>
-			  </tr>
-			</table>
-		</div>
+      <div style="display: flex; flex-direction: column; align-items: center">
+        <table
+          style="width: 100%; text-align: center; border-collapse: collapse"
+        >
+          <tr>
+            <td style="text-align: center">
+              <img src="Part 2 - 1ks.png" width="400px" />
+              <figcaption>pinned2.json with ks = 1</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img src="Part 2 - 100000ks.png" width="400px" />
+              <figcaption>pinned2.json with ks = 100000</figcaption>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align: center">
+              <img src="Part 2 - density1.png" width="400px" />
+              <figcaption>pinned2.json with density = 1</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img src="Part 2 - density1000.png" width="400px" />
+              <figcaption>pinned2.json with density = 1000</figcaption>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align: center">
+              <img src="Part 2 - damping0.png" width="400px" />
+              <figcaption>pinned2.json with damping = 0%</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img src="Part 2 - damping1.png" width="400px" />
+              <figcaption>pinned2.json with damping = 100%</figcaption>
+            </td>
+          </tr>
+        </table>
+      </div>
 
-		<h2>Part 2: Simulation via numerical integration</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+      <p class="editor-paragraph">
+        As visible above, at low spring constant of 1, there is barely any
+        crease, and whole cloth is just hanging loose from start to rest. At
+        higher spring constant of 100000, the cloth is more rigid from start to
+        rest, and the points between the two fixed points don’t move much.
+      </p>
+      <p class="editor-paragraph">
+        At low density of 1, the cloth doesn’t hang down much, and mostly shows
+        a square form. At high density of 1000, the cloth hangs down alot more,
+        and without alot more creases between the two fixed points.
+      </p>
+      <p class="editor-paragraph">
+        At low damping of 0%, the cloth movement is very erratic, and the cloth
+        swings back and forth alot. At high damping of 100%, the cloth movement
+        is very slow, and the whole cloth moves uniformly in one piece.
+      </p>
 
-		<h2>Part 3: Handling collisions with other objects</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+      <figure>
+        <img src="Part 2 - pinned4.png" width="400px" />
+        <figcaption>pinned4.json with default paramters</figcaption>
+      </figure>
 
-		<h2>Part 4: Handling self-collisions</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+      <h2>Part 3: Handling collisions with other objects</h2>
+      <p class="editor-paragraph">
+        For collisions with spheres, we first check the distance between the
+        origin(center) of the sphere and the position of our point mass. If this
+        distance is less or equal to that of the radius, this is a collision. We
+        first derive a direction vector from the origin to the position, and
+        normalize it, then extend it out to the surface of the sphere. This is
+        the tangent vector, from which we subtract the last_position to get the
+        correction vector. We add the correction vector scaled by (1 - friction)
+        to the last_position for the position of our point mass.
+      </p>
+      <p class="editor-paragraph">
+        For collisions with plane, I borrowed from the idea of ray-plane
+        intersection. First, we compare the dot product between the normal and
+        the last_position - point, and the dot production between normal and the
+        position. If the sign of the dot products are different, this is a
+        collision. Then, apply the ray-plane intersection algorithm, where the
+        origin of the ray is the position of the point mass, and direction
+        vector is the normal vector. Now, given the time, and thus the tangent
+        point, we offset it in the direction it came from by the SURFACE_OFFSET,
+        and find the correction vector and ultimately the position of our point
+        mass in the same way we did the sphere collision algorithm.
+      </p>
+      <div style="display: flex; flex-direction: column; align-items: center">
+        <table
+          style="width: 100%; text-align: center; border-collapse: collapse"
+        >
+          <tr>
+            <td style="text-align: center">
+              <img src="Part 3 - ks5000.png" width="300px" />
+              <figcaption>sphere.json with ks = 5000</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img src="Part 3 - ks500.png" width="300px" />
+              <figcaption>sphere.json with ks = 500</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img src="Part 3 - ks50000.png" width="300px" />
+              <figcaption>sphere.json with ks = 50000</figcaption>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <p class="editor-paragraph">
+        Compared to the default sphere with ks = 5000, the ks = 500 simulation
+        shows a cloth that is much more drooping down, and less rigid with many
+        more creases. It is the opposite in the ks = 50000 simulation, where the
+        cloth is much more rigid and less droopy, with much less creases.
+      </p>
 
-		<h2>Part 5: Shaders</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+      <figure>
+        <img src="Part 3 - plane.png" width="400px" />
+        <figcaption>plane.json at resting state</figcaption>
+      </figure>
 
-		<h2>(Optional) Part 6: Extra Credit - Additional cloth simulation features!</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-		
-		<h2>Additional Notes (please remove)</h2>
-		<ul>
-			<li>You can also add code if you'd like as so: <code>code code code</code></li>
-			<li>If you'd like to add math equations, 
-				<ul>
-					<li>You can write inline equations like so: \( a^2 + b^2 = c^2 \)</li>
-					<li>You can write display equations like so: \[ a^2 + b^2 = c^2 \]</li>
-				</ul>
-			</li>
-		</ul>
-		</div>
-	</body>
+      <h2>Part 4: Handling self-collisions</h2>
+      <p class="editor-paragraph">
+        For self-collision, we implement a spatial hasing. For the hash map, the
+        key is a float representing a 3D box volume, and the value is a vector
+        containing the PointMasses contained in that 3D box volume. The float is
+        calculated by truncating coordinates to the closest 3D box volume using
+        modulo, and mappin it to a 1D array index to return a float. We then
+        loop through each point mass to add it to the hash-map, and to the
+        vector corresponding to its 3D box volume. As for the acutal
+        self_collide function, given a point mass, we find the vector
+        corresponding to its 3d box volume, where each point mass other than
+        itself are candidates for self collision, and if the distance between
+        the point mass itself and any candidate is less than 2 * thickness, we
+        calculate the correction vector that places the point mass 2 * thickness
+        away from the candidate, and add it to a sum_correction_vector. At the
+        end, we divide this sum_correction_vector by the number of candidates,
+        and scale it by simulation_steps, then add it to the position of the
+        point mass.
+      </p>
+      <div style="display: flex; flex-direction: column; align-items: center">
+        <table
+          style="width: 100%; text-align: center; border-collapse: collapse"
+        >
+          <tr>
+            <td style="text-align: center">
+              <img src="Part 4 - default2.png" width="300px" />
+            </td>
+            <td style="text-align: center">
+              <img src="Part 4 - default3.png" width="300px" />
+            </td>
+            <td style="text-align: center">
+              <img src="Part 4 - default4.png" width="300px" />
+            </td>
+          </tr>
+        </table>
+        <caption>
+          Default (ks = 5000, density = 15)
+        </caption>
+      </div>
+
+      <div style="display: flex; flex-direction: column; align-items: center">
+        <table
+          style="width: 100%; text-align: center; border-collapse: collapse"
+        >
+          <tr>
+            <td style="text-align: center">
+              <img src="Part 4 - 1density1.png" width="300px" />
+            </td>
+            <td style="text-align: center">
+              <img src="Part 4 - 1density2.png" width="300px" />
+            </td>
+            <td style="text-align: center">
+              <img src="Part 4 - 1density3.png" width="300px" />
+            </td>
+          </tr>
+        </table>
+        <caption>
+          Low density (ks = 5000, density = 1)
+        </caption>
+      </div>
+
+      <div style="display: flex; flex-direction: column; align-items: center">
+        <table
+          style="width: 100%; text-align: center; border-collapse: collapse"
+        >
+          <tr>
+            <td style="text-align: center">
+              <img src="Part 4 - 1500density1.png" width="300px" />
+            </td>
+            <td style="text-align: center">
+              <img src="Part 4 - 1500density2.png" width="300px" />
+            </td>
+            <td style="text-align: center">
+              <img src="Part 4 - 1500density3.png" width="300px" />
+            </td>
+          </tr>
+        </table>
+        <caption>
+          High density (ks = 5000, density = 1500)
+        </caption>
+      </div>
+
+      <div style="display: flex; flex-direction: column; align-items: center">
+        <table
+          style="width: 100%; text-align: center; border-collapse: collapse"
+        >
+          <tr>
+            <td style="text-align: center">
+              <img src="Part 4 - 500ks1.png" width="300px" />
+            </td>
+            <td style="text-align: center">
+              <img src="Part 4 - 500ks2.png" width="300px" />
+            </td>
+            <td style="text-align: center">
+              <img src="Part 4 - 500ks3.png" width="300px" />
+            </td>
+          </tr>
+        </table>
+        <caption>
+          Low friction (ks = 500, density = 15)
+        </caption>
+      </div>
+
+      <div style="display: flex; flex-direction: column; align-items: center">
+        <table
+          style="width: 100%; text-align: center; border-collapse: collapse"
+        >
+          <tr>
+            <td style="text-align: center">
+              <img src="Part 4 - 50000ks1.png" width="300px" />
+            </td>
+            <td style="text-align: center">
+              <img src="Part 4 - 50000ks2.png" width="300px" />
+            </td>
+            <td style="text-align: center">
+              <img src="Part 4 - 50000ks3.png" width="300px" />
+            </td>
+          </tr>
+        </table>
+        <caption>
+          High friction (ks = 50000, density = 15)
+        </caption>
+      </div>
+
+      <p class="editor-paragraph">
+        At lower density of 1, the cloth seems more light, and there are less
+        creases to the cloth as it falls down, and the folds on the cloth are
+        larger in scale. At a higher density of 1500, there are many more
+        creases, and the cloth is much more erratic as it falls to the plane.
+      </p>
+      <p class="editor-paragraph">
+        At lower frictions of 500 ks, much like the simulation with high
+        density, there are many creases, and the cloth is more erratic.
+        Similarly, the simulation at high friction of 50000 ks shows
+        similarities to low density simulation, with less creases and less folds
+        which are larger in scale.
+      </p>
+
+      <h2>Part 5: Shaders</h2>
+      <p class="editor-paragraph">
+        Shader programs are programs that accelerate lighting simulation and ray
+        tracing, running it in paralle on the GPU rather than the CPU. We
+        utilize GLSL to write our shaders, using vertex shaders and fragment
+        shaders. Vertex shaders transform different vertices, changing their
+        geometry including position and normal, along with their final position.
+        The fragment shaders take in interpolated vertex values from the vertex
+        shader, and output the color for a fragment/pixel.
+      </p>
+
+      <p class="editor-paragraph">
+        Blinn-Phong shading model has 3 different components: diffuse component,
+        specular component, and ambient component. In my model, I calculate
+        these components separately and add them up to reproduce the shading
+        model. The diffuse component represents the light reflected toward the
+        camera, calculated as the product of the diffuse coefficient,
+        illumination scaled by the light falloff, and the light received
+        according to lambert’s cosine law. The specular component is the most
+        intense reflection depending on the view direction. It is calculated as
+        the product of the specular coefficient, illumniation scaled by the
+        light falloff, and the proximity to mirror direction according to the
+        dot product of half vector and normal vector. The ambient component is
+        the shading that does not depend on anything, and is calculated as the
+        product between the ambient coefficient and ambient intensity.
+      </p>
+
+      <figure>
+        <img src="Part 5 - phong.png" width="400px" />
+        <figcaption>sphere.json with Blinn-Phong shading model</figcaption>
+      </figure>
+      <div style="display: flex; flex-direction: column; align-items: center">
+        <table
+          style="width: 100%; text-align: center; border-collapse: collapse"
+        >
+          <tr>
+            <td style="text-align: center">
+              <img src="Part 5 - diffuse.png" width="300px" />
+              <figcaption>Diffuse shaders</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img src="Part 5 - specular.png" width="300px" />
+              <figcaption>Specular shaders</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img src="Part 5 - ambient.png" width="300px" />
+              <figcaption>Ambient shaders</figcaption>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <figure>
+        <img src="Part 5 - texture.png" width="400px" />
+        <figcaption>sphere.json with custom cat texture</figcaption>
+      </figure>
+
+      <p class="editor-paragraph">
+        The bump mapping portrays textures by simply changing the normals and
+        thus the lighting that appears on fragment. Displacement mapping
+        portrays textures by doing what the bump mapping does, and also
+        displaces the positions of the vertices to portray the texture with both
+        lighting and geometry. This is visible in the renders, as the bump
+        mapping doesn’t change the geometry of the sphere nor the cloth, but the
+        displacement mapping changes the geometry of both, while both mappings
+        portrays lighting on the textures. This also explains why changing the
+        coarseness of the sphere mesh doesn’t change anything for the bump
+        mapping while it changes the geometry of displacement mapping. At
+        coarseness of <code>-o 16 -a 16</code>, the displacement between the
+        grooves and the surfaces is less pronounced making the sphere jagged all
+        around, and at <code>-o 128 -a 128</code>, this distinction is much more
+        pronounced, making the sphere mostly spherical with grooves in between.
+      </p>
+      <div style="display: flex; flex-direction: column; align-items: center">
+        <table
+          style="width: 100%; text-align: center; border-collapse: collapse"
+        >
+          <tr>
+            <td style="text-align: center">
+              <img src="Part 5 - 16bump.png" width="400px" />
+              <figcaption>Bump shading with -o 16 -a 16</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img src="Part 5 - 16displacement.png" width="400px" />
+              <figcaption>Displacement shading with -o 16 -a 16</figcaption>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align: center">
+              <img src="Part 5 - 128bump.png" width="400px" />
+              <figcaption>Bump shading with -o 128 -a 128</figcaption>
+            </td>
+            <td style="text-align: center">
+              <img src="Part 5 - 128displacement.png" width="400px" />
+              <figcaption>Displacement shading with -o 128 -a 128</figcaption>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: center">
+        <table
+          style="width: 100%; text-align: center; border-collapse: collapse"
+        >
+          <tr>
+            <td style="text-align: center">
+              <img src="Part 5 - mirror sphere.png" width="400px" />
+            </td>
+            <td style="text-align: center">
+              <img src="Part 5 - mirror cloth.png" width="400px" />
+            </td>
+          </tr>
+        </table>
+        <caption>
+          Mirror shaders
+        </caption>
+      </div>
+    </div>
+  </body>
 </html>
